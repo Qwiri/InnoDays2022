@@ -4,8 +4,8 @@ import argparse
 
 #Argparsing
 parser = argparse.ArgumentParser(description='Setting up goal counter for kicker table')
-parser.add_argument('-host', type=str, default='localhost')
-parser.add_argument('-kid', type=str, default='0')
+parser.add_argument('-host', type=str, default='localhost', help='Hostname of Pinguin-backend')
+parser.add_argument('-kid', type=str, default='0', help='ID of kicker table')
 
 
 BACKEND_URL = "localhost"

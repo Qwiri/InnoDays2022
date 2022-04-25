@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Qwiri/InnoDays2022/backend/internal"
 	"github.com/Qwiri/InnoDays2022/backend/internal/server"
 	"github.com/apex/log"
 	"github.com/joho/godotenv"
@@ -36,6 +37,13 @@ func main() {
 		db = _db
 	}
 	log.Info("Connected to database")
+
+	// automigrate db
+	if err := db.AutoMigrate(internal.TableModels...); err != nil {
+		log.WithError(err).Fatal("Could not migrate db")
+		return
+	}
+	log.Info("Migrated database")
 
 	// initialize server
 	var s server.Server

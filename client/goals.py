@@ -26,7 +26,14 @@ def button_callback(channel):
         goal_id = GOAL_ONE_ID
     else:
         goal_id = GOAL_TWO_ID
-    print(f"{BACKEND_URL}/e/tor/{KICKER_ID}/{goal_id}")
+    url = f"http://{BACKEND_URL}/e/tor/{KICKER_ID}/{goal_id}"
+
+    resp = requests.post(url)
+
+    if not resp.ok:
+        print("Error: " + resp.status_code)
+
+        
 
 def setup():
     GPIO.setmode(GPIO.BOARD)

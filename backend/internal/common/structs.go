@@ -1,7 +1,11 @@
-package internal
+package common
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
+type UserID uint
 type TeamColor uint
 type KickaeID uint
 
@@ -18,12 +22,12 @@ var TableModels = []interface{}{
 }
 
 type Game struct {
-	ID       uint
-	Stime    time.Time
-	Etime    *time.Time
-	Sb       uint
-	Sw       uint
-	KickaeID KickaeID
+	ID         uint
+	StartTime  time.Time
+	EndTime    sql.NullTime
+	ScoreBlack uint
+	ScoreWhite uint
+	KickaeID   KickaeID
 
 	Players []Player `gorm:"many2many:game_players"`
 }
@@ -38,12 +42,12 @@ type Kickae struct {
 	ID    uint
 	Room  string
 	Note  string
-	Games []Game
+	Games []*Game
 }
 
 type Player struct {
-	ID  string
-	elo uint
+	ID  UserID
+	Elo uint
 
 	Games []Game `gorm:"many2many:GamePlayers"`
 }

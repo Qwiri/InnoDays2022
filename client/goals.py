@@ -8,34 +8,35 @@ parser = argparse.ArgumentParser(
     description='Setting up goal counter for kicker table')
 parser.add_argument('--backend-url', type=str,
                     default='http://localhost', help='URL of Pinguin-backend')
-parser.add_argument('--kid', type=str, default='0', help='ID of kicker table')
+parser.add_argument('--kid', type=str, default='1', help='ID of kicker table')
 
 
-BACKEND_URL = "https://localhost"
+BACKEND_URL = "http://localhost"
 KICKER_ID = 0
 
-GOAL_ONE_PIN = 10
-GOAL_TWO_PIN = 12
+GOAL_BLACK_PIN = 10
+GOAL_WHITE_PIN = 12
 
-GOAL_ONE_ID = 0
-GOAL_TWO_ID = 1
+GOAL_BLACK_ID = 1
+GOAL_WHITE_ID = 2
 
-PINS = [GOAL_ONE_PIN, GOAL_TWO_PIN]
+PINS = [GOAL_BLACK_PIN, GOAL_WHITE_PIN]
 
 DEBOUNCING = 500
 
 
 def button_callback(channel):
-    if channel == GOAL_ONE_PIN:
-        goal_id = GOAL_ONE_ID
+    if channel == GOAL_BLACK_PIN:
+        goal_id = GOAL_BLACK_ID
     else:
-        goal_id = GOAL_TWO_ID
+        goal_id = GOAL_WHITE_ID
     url = f"{BACKEND_URL}/e/tor/{KICKER_ID}/{goal_id}"
 
     resp = requests.post(url)
+    print(url)
 
     if not resp.ok:
-        print("Error: " + resp.status_code)
+        print("Error: {resp.status_code}")
         print(resp.text)
 
 

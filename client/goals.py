@@ -30,7 +30,7 @@ def button_callback(channel):
         goal_id = GOAL_ONE_ID
     else:
         goal_id = GOAL_TWO_ID
-    url = f"http://{BACKEND_URL}/e/tor/{KICKER_ID}/{goal_id}"
+    url = f"{BACKEND_URL}/e/tor/{KICKER_ID}/{goal_id}"
 
     resp = requests.post(url)
 
@@ -46,11 +46,11 @@ def setup():
         GPIO.add_event_detect(
             pin, GPIO.RISING, callback=button_callback, bouncetime=DEBOUNCING)
 
+if __name__ == "__main__":
+    args = parser.parse_args()
+    BACKEND_URL = args.backend_url
+    KICKER_ID = args.kid
+    setup()
 
-args = parser.parse_args()
-BACKEND_URL = args.backend_url
-KICKER_ID = args.kid
-setup()
-
-loop = asyncio.new_event_loop()
-loop.run_forever()
+    loop = asyncio.new_event_loop()
+    loop.run_forever()

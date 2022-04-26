@@ -13,7 +13,7 @@ Setting up goal counter for kicker table
 
 optional arguments:
   -h, --help            show this help message and exit
-  -backend-url BACKEND_URL
+  --backend-url BACKEND_URL
                         URL of Pinguin-backend
-  -kid KID              ID of kicker table
+  --kid KID              ID of kicker table
 ```

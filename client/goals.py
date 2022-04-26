@@ -7,7 +7,7 @@ import asyncio
 parser = argparse.ArgumentParser(
     description='Setting up goal counter for kicker table')
 parser.add_argument('--backend-url', type=str,
-                    default='http://localhost', help='URL of Pinguin-backend')
+                    default='http://localhost', help='URL of Penguin')
 parser.add_argument('--kid', type=str, default='1', help='ID of kicker table')
 
 

@@ -42,7 +42,7 @@ type Game struct {
 	ScoreWhite uint
 	// KickaeID is the id of the kickae the game is taking place
 	KickaeID KickaeID
-	// Kickae is the kickae the game is taking place
+	// Kickae is the kickae, where the game is taking place at
 	Kickae Kickae `gorm:"foreignKey:KickaeID"`
 	// UpdatedAt is the time when the game was last updated - used for janitor
 	UpdatedAt time.Time

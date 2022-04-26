@@ -5,8 +5,8 @@ import requests
 from dotenv import load_dotenv
 
 
-def send_request(h, k_id, s_id, c_id) -> requests.Response:
-    request_url = "https://{0}/e/rfid/{1}/{2}/{3}".format(h, k_id, s_id, c_id)
+def send_request(u, k_id, s_id, c_id) -> requests.Response:
+    request_url = "{0}/e/rfid/{1}/{2}/{3}".format(u, k_id, s_id, c_id)
     print(f"POST-request to {request_url}")
     r = requests.post(request_url)
     return r
@@ -37,14 +37,14 @@ class RfidReader:
 
 if __name__ == "__main__":
     load_dotenv()
-    host = os.getenv("BACKEND_URL")
+    url = os.getenv("BACKEND_URL")
     kicker_id = os.getenv("KICKER_ID")
     rfid_reader = RfidReader()
     while True:
         print("RFID-Reader ready...")
         scanner_id, card_id = rfid_reader.get_next_id()
         try:
-            resp = send_request(host, kicker_id, scanner_id, card_id)
+            resp = send_request(url, kicker_id, scanner_id, card_id)
             if not resp.ok:
                 print("Request failed\n")
             else:

@@ -1,18 +1,18 @@
 package server
 
 import (
-	"github.com/Qwiri/InnoDays2022/backend/internal"
+	"github.com/Qwiri/InnoDays2022/backend/internal/common"
 	"github.com/gofiber/fiber/v2"
 )
 
 func (s *Server) routeRFID(c *fiber.Ctx) (err error) {
 
 	// parse kicker id
-	var kickerID internal.KickaeID
+	var kickerID common.KickaeID
 	if k, err := c.ParamsInt("kicker_id"); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "parsing kicker_id failed")
 	} else {
-		kickerID = internal.KickaeID(k)
+		kickerID = common.KickaeID(k)
 	}
 
 	// parse goal id
@@ -24,9 +24,9 @@ func (s *Server) routeRFID(c *fiber.Ctx) (err error) {
 	// parse player id
 	playerID := c.Params("player_id")
 
-	p := &internal.GamePlayers{
+	p := &common.GamePlayers{
 		PlayerID: playerID,
-		Team:     internal.TeamColor(goalID),
+		Team:     common.TeamColor(goalID),
 	}
 
 	// add to kickae

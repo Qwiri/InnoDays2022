@@ -48,7 +48,7 @@ def setup():
 
 
 args = parser.parse_args()
-BACKEND_URL = args.host
+BACKEND_URL = args.backend_url
 KICKER_ID = args.kid
 setup()
 

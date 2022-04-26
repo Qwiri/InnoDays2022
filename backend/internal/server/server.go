@@ -22,6 +22,7 @@ func New(db *gorm.DB) (s *Server) {
 	s.app.Get("/", s.routeIndex)
 	s.app.Post("/e/rfid/:kicker_id/:goal_id/:player_id", s.routeRFID)
 	s.app.Post("/e/tor/:kicker_id/:goal_id", s.routeTor)
+	s.app.Get("/p/monitor/:kicker_id", s.routePull)
 	return
 }
 

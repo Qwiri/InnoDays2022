@@ -55,12 +55,12 @@ type GamePlayers struct {
 	// PlayerID is the id of the player
 	PlayerID UserID `gorm:"primaryKey"`
 	// Player is the player
-	Player Player `gorm:"foreignKey:PlayerID"`
+	Player *Player `gorm:"foreignKey:PlayerID"`
 
 	// GameID is the id of the game
 	GameID uint `gorm:"primaryKey"`
 	// Game is the game
-	Game Game `gorm:"foreignKey:GameID"`
+	Game *Game `gorm:"foreignKey:GameID"`
 
 	// Team is the goal color of the player (black/white)
 	Team GoalColor

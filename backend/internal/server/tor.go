@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"github.com/Qwiri/InnoDays2022/backend/internal/common"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -8,7 +9,6 @@ import (
 )
 
 func (s *Server) routeTor(c *fiber.Ctx) (err error) {
-
 	// parse kicker id
 	var kickerID common.KickaeID
 	if k, err := c.ParamsInt("kicker_id"); err != nil {
@@ -18,59 +18,72 @@ func (s *Server) routeTor(c *fiber.Ctx) (err error) {
 	}
 
 	// parse goal id
-	var goalID common.TeamColor
+	var goalID common.GoalColor
 	if g, err := c.ParamsInt("goal_id"); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "could not parse goal_id")
 	} else {
-		goalID = common.TeamColor(g)
+		goalID = common.GoalColor(g)
 	}
 
 	// check if the kicker has a currently running game
-	g := &common.Game{}
-	if err = s.DB.Where(&common.Game{
-		KickaeID: kickerID,
-	}).First(g).Error; err != nil {
-		if err != gorm.ErrRecordNotFound {
+	var game *common.Game
+	if game, err = s.findGameByKicker(kickerID); err != nil {
+		// unknown error
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
-	}
 
-	// if no game is currently running
-	if err == gorm.ErrRecordNotFound {
-		if len(s.pendingPlayers[kickerID]) < 2 {
-			return fiber.NewError(fiber.StatusConflict, "Can't start game with less than two players")
+		// check if there are enough pending players on both teams
+		pt := make(map[common.GoalColor]int)
+		for _, p := range s.pending[kickerID] {
+			pt[p.Team]++
 		}
-		// TODO: check if logged in same team
-		// TODO: check if same player
+		if pt[common.BlackTeamColor] <= 0 || pt[common.WhiteTeamColor] <= 0 {
+			return fiber.NewError(fiber.StatusBadRequest, "not enough players on both teams")
+		}
 
-		g = &common.Game{
+		// collect players
+		var players []*common.Player
+		for _, p := range s.pending[kickerID] {
+			// find player
+			var player *common.Player
+			if player, err = s.findPlayerById(p.PlayerID); err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+				}
+				// create and save player
+				player = &common.Player{
+					ID: p.PlayerID,
+				}
+				if err = s.DB.Create(player).Error; err != nil {
+					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+				}
+			}
+			players = append(players, player)
+		}
+
+		// create new game
+		game = &common.Game{
 			StartTime: time.Now(),
 			KickaeID:  kickerID,
+			Players:   players,
 		}
-		if err = s.DB.Create(g).Error; err != nil {
+		if err = s.DB.Create(game).Error; err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
-		gps := s.pendingPlayers[kickerID]
-		for _, gp := range gps {
-			gp.GameID = g.ID
-
-			if err = s.DB.Create(gp).Error; err != nil {
-				return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-			}
-		}
-		delete(s.pendingPlayers, kickerID)
-
+		// remove pending players
+		delete(s.pending, kickerID)
 	} else {
+		// game found
 		if goalID == common.BlackTeamColor {
-			g.ScoreWhite++
+			game.ScoreWhite++
 		} else if goalID == common.WhiteTeamColor {
-			g.ScoreBlack++
+			game.ScoreBlack++
 		}
-		if err = s.DB.Where("ID = ?", g.ID).Updates(g).Error; err != nil {
+		if err = s.DB.Where("ID = ?", game.ID).Updates(game).Error; err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
-
 	}
 
 	return c.SendStatus(fiber.StatusCreated)

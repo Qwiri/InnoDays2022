@@ -2,15 +2,19 @@ package common
 
 import (
 	"database/sql"
+	"regexp"
 	"time"
 )
 
-type UserID uint
-type TeamColor uint
+type UserID string
+
+var UserIDPattern = regexp.MustCompile("^\\d+$")
+
+type GoalColor uint
 type KickaeID uint
 
 const (
-	BlackTeamColor TeamColor = iota + 1
+	BlackTeamColor GoalColor = iota + 1
 	WhiteTeamColor
 )
 
@@ -18,7 +22,6 @@ var TableModels = []interface{}{
 	&Game{},
 	&Kickae{},
 	&Player{},
-	&GamePlayers{},
 }
 
 type Game struct {
@@ -29,13 +32,13 @@ type Game struct {
 	ScoreWhite uint
 	KickaeID   KickaeID
 
-	Players []Player `gorm:"many2many:game_players"`
+	Players []*Player `gorm:"many2many:game_players"`
 }
 
-type GamePlayers struct {
-	GameID   uint
-	PlayerID string
-	Team     TeamColor
+type PendingPlayer struct {
+	PlayerID UserID
+	Team     GoalColor
+	AddedAt  time.Time // used for janitor
 }
 
 type Kickae struct {

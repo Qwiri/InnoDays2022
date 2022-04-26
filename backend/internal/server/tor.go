@@ -28,7 +28,7 @@ func (s *Server) routeTor(c *fiber.Ctx) (err error) {
 	// check if the kicker has a currently running game
 	var game *common.Game
 	if game, err = s.findActiveGameByKicker(kickerID); err != nil {
-		// unknown error
+		// unknown error - return
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
@@ -42,8 +42,8 @@ func (s *Server) routeTor(c *fiber.Ctx) (err error) {
 			return fiber.NewError(fiber.StatusBadRequest, "not enough players on both teams")
 		}
 
-		// collect players
-		var players []*common.Player
+		// collect players from pending list and load them from pending players table
+		var players []*common.GamePlayers
 		for _, p := range s.pending[kickerID] {
 			// find player
 			var player *common.Player
@@ -59,10 +59,14 @@ func (s *Server) routeTor(c *fiber.Ctx) (err error) {
 					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 				}
 			}
-			players = append(players, player)
+			players = append(players, &common.GamePlayers{
+				PlayerID: player.ID,
+				GameID:   game.ID,
+				Team:     p.Team,
+			})
 		}
 
-		// create new game
+		// create new game object
 		game = &common.Game{
 			StartTime: time.Now(),
 			KickaeID:  kickerID,

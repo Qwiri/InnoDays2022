@@ -1,7 +1,6 @@
 package server
 
 import (
-	"database/sql"
 	"github.com/Qwiri/InnoDays2022/backend/internal/common"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -36,11 +35,10 @@ func (s *Server) Shutdown() error {
 
 // db functions
 
-func (s *Server) findGameByKicker(id common.KickaeID) (g *common.Game, err error) {
-	err = s.DB.Where(&common.Game{
-		KickaeID: id,
-		EndTime:  sql.NullTime{Valid: true}, // where EndTime = NULL
-	}).First(&g).Error
+func (s *Server) findActiveGameByKicker(id common.KickaeID) (g *common.Game, err error) {
+	err = s.DB.Model(&common.Game{}).
+		Where("kickae_id = ? AND end_time IS NULL", id).
+		First(&g).Error
 	return
 }
 

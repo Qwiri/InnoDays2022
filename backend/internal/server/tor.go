@@ -27,7 +27,7 @@ func (s *Server) routeTor(c *fiber.Ctx) (err error) {
 
 	// check if the kicker has a currently running game
 	var game *common.Game
-	if game, err = s.findGameByKicker(kickerID); err != nil {
+	if game, err = s.findActiveGameByKicker(kickerID); err != nil {
 		// unknown error
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())

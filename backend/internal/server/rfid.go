@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"github.com/Qwiri/InnoDays2022/backend/internal/common"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -18,8 +19,8 @@ func (s *Server) routeRFID(c *fiber.Ctx) (err error) {
 		kickerID = common.KickaeID(k)
 	}
 	// check if there's already a game running on kickerID
-	if game, err := s.findGameByKicker(kickerID); game != nil || (err != nil && !errors.Is(err, gorm.ErrRecordNotFound)) {
-		return fiber.NewError(fiber.StatusNotAcceptable, "game already running: "+err.Error())
+	if _, err := s.findActiveGameByKicker(kickerID); err == nil || !errors.Is(err, gorm.ErrRecordNotFound) {
+		return fiber.NewError(fiber.StatusNotAcceptable, "game already running")
 	}
 
 	// parse goal id
@@ -109,6 +110,7 @@ func (s *Server) routeRFID(c *fiber.Ctx) (err error) {
 
 	// add to pending players
 	s.pending[kickerID] = append(s.pending[kickerID], pending)
+	fmt.Println(s.pending[kickerID])
 
 	return c.Status(fiber.StatusCreated).
 		SendString(string(playerID) + " -> team " + strconv.Itoa(int(goalID)))

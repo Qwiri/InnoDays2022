@@ -7,7 +7,7 @@
 
 #### Execution
 ```
-usage: goals.py [-h] [--backend-url BACKEND_URL] [-kid KID]
+usage: goals.py [-h] [--backend-url BACKEND_URL] [--kid KID]
 
 Setting up goal counter for kicker table
 

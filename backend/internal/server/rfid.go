@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Qwiri/InnoDays2022/backend/internal/common"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/utils"
 	"gorm.io/gorm"
 	"strconv"
 	"time"
@@ -36,7 +37,7 @@ func (s *Server) routeRFID(c *fiber.Ctx) (err error) {
 	}
 
 	// parse player id
-	playerID := common.UserID(c.Params("player_id"))
+	playerID := common.UserID(utils.CopyString(c.Params("player_id")))
 	// even through the playerID is a string, it should only contain numbers
 	if !common.UserIDPattern.MatchString(string(playerID)) {
 		return fiber.NewError(fiber.StatusBadRequest, "user id invalid")

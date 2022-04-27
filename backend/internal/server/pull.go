@@ -1,13 +1,15 @@
 package server
 
 import (
+	"errors"
 	"github.com/Qwiri/InnoDays2022/backend/internal/common"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
 type PullPayload struct {
-	Game *common.Game
+	Game    *common.Game
+	Pending []*common.Player
 }
 
 func (s *Server) routePull(c *fiber.Ctx) (err error) {
@@ -20,22 +22,37 @@ func (s *Server) routePull(c *fiber.Ctx) (err error) {
 		kickerID = common.KickaeID(k)
 	}
 
-	p := PullPayload{}
+	var (
+		p    PullPayload
+		game common.Game
+	)
 
 	// check if the kicker has a currently running game
-	var game common.Game
 	if err = s.DB.
 		Preload("Players").
 		Preload("Players.Player").
-		Where(&common.Game{
-			KickaeID: kickerID,
-		}).
+		Preload("Goals").
+		Where("kickae_id = ? AND end_time IS NULL", kickerID).
 		First(&game).Error; err != nil {
-		if err != gorm.ErrRecordNotFound {
+
+		// ErrRecordNotFound is okay. A game hasn't been started yet.
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c = c.Status(fiber.StatusNotFound)
+		} else {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		}
+	} else {
+		p.Game = &game
+		c = c.Status(fiber.StatusAccepted)
+	}
+
+	// pending
+	if pending, ok := s.pending[kickerID]; ok {
+		for _, pen := range pending {
+			player := s.getPlayerById(pen.PlayerID)
+			p.Pending = append(p.Pending, &player)
 		}
 	}
 
-	p.Game = &game
 	return c.JSON(&p)
 }

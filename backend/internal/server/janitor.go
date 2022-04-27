@@ -26,10 +26,10 @@ func NewJanitor(db *gorm.DB, svr *Server, cancel context.Context, delay time.Dur
 }
 
 func (j *Janitor) Start() {
-	log.Info("[Janitor] Starting")
 	if j.ticker != nil {
 		j.Stop()
 	}
+	log.Info("[Janitor] Starting")
 	j.ticker = time.NewTicker(j.delay)
 	for {
 		select {

@@ -46,7 +46,7 @@ if __name__ == "__main__":
         try:
             resp = send_request(url, kicker_id, scanner_id, card_id)
             if not resp.ok:
-                print("Request failed\n")
+                print(f"Request failed: {resp.text}\n")
             else:
                 print(f"Response: {resp.text}\n")
         except requests.exceptions.ConnectionError:

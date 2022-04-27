@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Start client sripts
-python rfid.py &
-python goals.py --background-url https://localhost --kid 1
+screen -UmdS rfid-scan python3 rfid.py
+screen -UmdS goal-1 python3 goals.py --background-url "http://localhost" --kid "1"

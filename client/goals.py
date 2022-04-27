@@ -14,6 +14,11 @@ parser.add_argument('--kid', type=str, default='1', help='ID of kicker table')
 BACKEND_URL = "http://localhost"
 KICKER_ID = 0
 
+GOAL_BLACK_LASER_PIN = 16
+GOAL_WHITE_LASER_PIN = 18
+
+LASERS = [GOAL_BLACK_LASER_PIN, GOAL_WHITE_LASER_PIN]
+
 GOAL_BLACK_PIN = 10
 GOAL_WHITE_PIN = 12
 
@@ -42,10 +47,17 @@ def button_callback(channel):
 
 def setup():
     GPIO.setmode(GPIO.BOARD)
+    GPIO.setwarnings(False)
+
+    for laser in LASERS:
+        GPIO.setup(laser, GPIO.OUT)
+        GPIO.output(laser, GPIO.HIGH)
+
     for pin in PINS:
         GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.add_event_detect(
             pin, GPIO.RISING, callback=button_callback, bouncetime=DEBOUNCING)
+
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -54,4 +66,7 @@ if __name__ == "__main__":
     setup()
 
     loop = asyncio.new_event_loop()
-    loop.run_forever()
+    try:
+        loop.run_forever()
+    finally:
+        GPIO.cleanup()

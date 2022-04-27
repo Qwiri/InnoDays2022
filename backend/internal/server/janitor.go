@@ -80,7 +80,8 @@ func (j *Janitor) Clean() {
 		log.WithFields(log.Fields{
 			"gameID": game.ID,
 		}).Info("[Janitor] Marking game as done")
-		if err := j.db.Model(game).Where(game).Update("end_time", time.Now()).Error; err != nil {
+		// mark game as done
+		if err := game.End(j.db, common.ReasonTimeout); err != nil {
 			log.WithError(err).Error("[Janitor] Failed to delete game")
 		}
 	}

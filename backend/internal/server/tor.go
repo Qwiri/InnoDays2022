@@ -3,6 +3,7 @@ package server
 import (
 	"errors"
 	"github.com/Qwiri/InnoDays2022/backend/internal/common"
+	"github.com/apex/log"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 	"time"
@@ -46,19 +47,7 @@ func (s *Server) routeTor(c *fiber.Ctx) (err error) {
 		var players []*common.GamePlayers
 		for _, p := range s.pending[kickerID] {
 			// find player
-			var player *common.Player
-			if player, err = s.findPlayerById(p.PlayerID); err != nil {
-				if !errors.Is(err, gorm.ErrRecordNotFound) {
-					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-				}
-				// create and save player
-				player = &common.Player{
-					ID: p.PlayerID,
-				}
-				if err = s.DB.Create(player).Error; err != nil {
-					return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-				}
-			}
+			player := s.getPlayerById(p.PlayerID)
 			players = append(players, &common.GamePlayers{
 				PlayerID: player.ID,
 				GameID:   game.ID,
@@ -78,6 +67,8 @@ func (s *Server) routeTor(c *fiber.Ctx) (err error) {
 
 		// remove pending players
 		delete(s.pending, kickerID)
+
+		return c.Status(fiber.StatusCreated).SendString("game created")
 	} else {
 		// game found
 		if goalID == common.BlackTeamColor {
@@ -85,10 +76,22 @@ func (s *Server) routeTor(c *fiber.Ctx) (err error) {
 		} else if goalID == common.WhiteTeamColor {
 			game.ScoreBlack++
 		}
-		if err = s.DB.Where("ID = ?", game.ID).Updates(game).Error; err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-		}
-	}
 
-	return c.SendStatus(fiber.StatusCreated)
+		// add goal
+		if err = s.DB.Create(&common.Goal{
+			GameID: game.ID,
+			Team:   goalID,
+			Time:   time.Now(),
+		}).Error; err != nil {
+			log.WithError(err).Warn("cannot save goal")
+		}
+
+		// add score to game
+		if err = s.DB.Where("ID = ?", game.ID).Updates(game).Error; err != nil {
+			log.WithError(err).Warn("cannot update game")
+		}
+
+		// send ok
+		return c.Status(fiber.StatusAccepted).SendString("count goal")
+	}
 }

@@ -1,7 +1,9 @@
 package server
 
 import (
+	"errors"
 	"github.com/Qwiri/InnoDays2022/backend/internal/common"
+	"github.com/apex/log"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
@@ -43,9 +45,19 @@ func (s *Server) findActiveGameByKicker(id common.KickaeID) (g *common.Game, err
 	return
 }
 
-func (s *Server) findPlayerById(id common.UserID) (p *common.Player, err error) {
-	err = s.DB.Where(&common.Player{
+func (s *Server) getPlayerById(id common.UserID) (p common.Player) {
+	if err := s.DB.Where(&common.Player{
 		ID: id,
-	}).First(&p).Error
+	}).First(&p).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// create new player and save to database
+			p.ID = id
+			if err = s.DB.Create(&p).Error; err != nil {
+				log.WithError(err).Warn("cannot save new player")
+			}
+		} else {
+			log.WithError(err).Warn("cannot get player")
+		}
+	}
 	return
 }

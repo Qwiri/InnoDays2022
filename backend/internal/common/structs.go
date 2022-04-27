@@ -26,7 +26,16 @@ var TableModels = []interface{}{
 	&Kickae{},
 	&Player{},
 	&GamePlayers{},
+	&Goal{},
 }
+
+type Reason uint
+
+const (
+	ReasonWin Reason = iota + 1
+	ReasonTimeout
+	ReasonCancel
+)
 
 // Game represents a game
 type Game struct {
@@ -46,8 +55,12 @@ type Game struct {
 	Kickae Kickae `gorm:"foreignKey:KickaeID"`
 	// UpdatedAt is the time when the game was last updated - used for janitor
 	UpdatedAt time.Time
+	// Reason why the game ended
+	Reason Reason
 	// Players are the players in the game
 	Players []*GamePlayers
+	// Goals are the goals in the game
+	Goals []*Goal
 }
 
 // GamePlayers represents a player in a game
@@ -87,6 +100,21 @@ type Player struct {
 	// Elo is the elo of the player
 	Elo uint
 }
+
+type Goal struct {
+	// ID of the goal
+	ID uint `gorm:"primaryKey"`
+	// GameID is the id of the game
+	GameID uint
+	// Game is the game
+	Game *Game `gorm:"foreignKey:GameID"`
+	// Team is the goal color of the player (black/white)
+	Team GoalColor
+	// Time is the time when the goal was scored
+	Time time.Time
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 // PendingPlayer represents a player that is waiting to join a game
 type PendingPlayer struct {

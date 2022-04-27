@@ -14,10 +14,10 @@ parser.add_argument('--kid', type=str, default='1', help='ID of kicker table')
 BACKEND_URL = "http://localhost"
 KICKER_ID = 0
 
-GOAL_BLACK_LASER = 16
-GOAL_WHITE_LASER = 18
+GOAL_BLACK_LASER_PIN = 16
+GOAL_WHITE_LASER_PIN = 18
 
-LASERS = [GOAL_BLACK_LASER, GOAL_WHITE_LASER]
+LASERS = [GOAL_BLACK_LASER_PIN, GOAL_WHITE_LASER_PIN]
 
 GOAL_BLACK_PIN = 10
 GOAL_WHITE_PIN = 12
@@ -68,5 +68,5 @@ if __name__ == "__main__":
     loop = asyncio.new_event_loop()
     try:
         loop.run_forever()
-    except KeyboardInterrupt:
+    finally:
         GPIO.cleanup()

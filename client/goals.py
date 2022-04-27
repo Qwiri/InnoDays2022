@@ -58,6 +58,7 @@ def setup():
         GPIO.add_event_detect(
             pin, GPIO.RISING, callback=button_callback, bouncetime=DEBOUNCING)
 
+
 if __name__ == "__main__":
     args = parser.parse_args()
     BACKEND_URL = args.backend_url
@@ -69,7 +70,3 @@ if __name__ == "__main__":
         loop.run_forever()
     except KeyboardInterrupt:
         GPIO.cleanup()
-
-    
-
-    

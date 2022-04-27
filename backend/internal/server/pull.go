@@ -9,7 +9,10 @@ import (
 
 type PullPayload struct {
 	Game    *common.Game
-	Pending []*common.Player
+	Pending []struct {
+		Player  *common.Player
+		Pending *common.PendingPlayer
+	}
 }
 
 func (s *Server) routePull(c *fiber.Ctx) (err error) {
@@ -50,7 +53,10 @@ func (s *Server) routePull(c *fiber.Ctx) (err error) {
 	if pending, ok := s.pending[kickerID]; ok {
 		for _, pen := range pending {
 			player := s.getPlayerById(pen.PlayerID)
-			p.Pending = append(p.Pending, &player)
+			p.Pending = append(p.Pending, struct {
+				Player  *common.Player
+				Pending *common.PendingPlayer
+			}{Player: &player, Pending: pen})
 		}
 	}
 

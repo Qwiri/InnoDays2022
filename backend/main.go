@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/Qwiri/InnoDays2022/backend/internal/common"
 	"github.com/Qwiri/InnoDays2022/backend/internal/server"
 	"github.com/apex/log"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func main() {
@@ -56,10 +58,18 @@ func main() {
 		}
 	}()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// start janitor
+	j := server.NewJanitor(db, s, ctx, time.Second*10)
+	go j.Start()
+
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 	<-c
 
+	cancel()
 	log.Info("Shutting down")
 	if err := s.Shutdown(); err != nil {
 		log.WithError(err).Warn("cannot shutdown web server")

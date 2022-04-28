@@ -6,6 +6,7 @@ import (
 	"github.com/apex/log"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
+	"math"
 	"time"
 )
 
@@ -91,7 +92,22 @@ func (s *Server) routeTor(c *fiber.Ctx) (err error) {
 			log.WithError(err).Warn("cannot update game")
 		}
 
+		// check game
+		ww := won(game.ScoreWhite, game.ScoreBlack)
+		wb := won(game.ScoreBlack, game.ScoreWhite)
+		if ww || wb {
+			// game is over
+			if err = game.End(s.DB, common.ReasonWin); err != nil {
+				log.WithError(err).Warn("cannot end game")
+			}
+			return c.Status(fiber.StatusCreated).SendString("game won")
+		}
+
 		// send ok
 		return c.Status(fiber.StatusAccepted).SendString("count goal")
 	}
+}
+
+func won(a, b uint) bool {
+	return a >= 10 && math.Abs(float64(a)-float64(b)) >= 2
 }

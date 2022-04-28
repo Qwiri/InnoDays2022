@@ -53,6 +53,7 @@ func (s *Server) getPlayerById(id common.UserID) (p common.Player) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// create new player and save to database
 			p.ID = id
+			p.Elo = 1337 // default elo
 			if err = s.DB.Create(&p).Error; err != nil {
 				log.WithError(err).Warn("cannot save new player")
 			}

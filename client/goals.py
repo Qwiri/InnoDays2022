@@ -3,7 +3,7 @@ import requests
 import argparse
 import asyncio
 
-# Argparsing
+# Argument parsing
 parser = argparse.ArgumentParser(
     description='Setting up goal counter for kicker table')
 parser.add_argument('--backend-url', type=str,
@@ -27,7 +27,7 @@ GOAL_WHITE_ID = 2
 
 PINS = [GOAL_BLACK_PIN, GOAL_WHITE_PIN]
 
-DEBOUNCING = 500
+DEBOUNCING = 3000
 
 
 def button_callback(channel):

@@ -45,10 +45,14 @@ func (s *Server) Shutdown() error {
 
 // db functions
 
-func (s *Server) findActiveGameByKicker(id common.KickaeID) (g *common.Game, err error) {
-	err = s.DB.Model(&common.Game{}).
-		Where("kickae_id = ? AND end_time IS NULL", id).
-		First(&g).Error
+func (s *Server) findActiveGameByKicker(id common.KickaeID, preload ...bool) (g *common.Game, err error) {
+	tx := s.DB.Model(&common.Game{})
+	if len(preload) > 0 && preload[0] {
+		tx = tx.Preload("Players").Preload("Players.Player")
+	}
+	err = tx.Where("kickae_id = ? AND end_time IS NULL", id).
+		First(&g).
+		Error
 	return
 }
 

@@ -27,6 +27,7 @@ var TableModels = []interface{}{
 	&Player{},
 	&GamePlayers{},
 	&Goal{},
+	&EloLog{},
 }
 
 type Reason uint
@@ -112,6 +113,15 @@ type Goal struct {
 	Team GoalColor
 	// Time is the time when the goal was scored
 	Time time.Time
+}
+
+type EloLog struct {
+	ID       uint
+	PlayerID UserID
+	Player   *Player `gorm:"foreignKey:PlayerID"`
+	OldElo   uint
+	NewElo   uint
+	Time     time.Time
 }
 
 ////////////////////////////////////////////////////////////////////////////////

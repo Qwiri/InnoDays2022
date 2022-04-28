@@ -51,6 +51,7 @@ func (s *Server) routePull(c *fiber.Ctx) (err error) {
 
 	// pending
 	if pending, ok := s.pending[kickerID]; ok {
+		p.Pending = nil
 		for _, pen := range pending {
 			player := s.getPlayerById(pen.PlayerID)
 			p.Pending = append(p.Pending, struct {

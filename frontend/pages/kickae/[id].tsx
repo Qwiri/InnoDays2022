@@ -5,6 +5,11 @@ import GoalDisplay, { formatTime } from "../../components/GoalDisplay";
 
 import { QRCodeSVG } from "qrcode.react";
 
+enum TeamColor {
+    Black = 1,
+    White
+}
+
 export default function KickaePage({ id }: {id: number}) {
 
 	const [scoreWhite, setScoreWhite] = useState("?");
@@ -31,9 +36,9 @@ export default function KickaePage({ id }: {id: number}) {
 				let players: Array<Pending>;
 				players = json["Pending"];
 				players.forEach((p) => {
-					if (p.Pending.Team === 1) {
+					if (p.Pending.Team == TeamColor.Black) {
 						teamBlack.push(p);
-					} else if (p.Pending.Team === 2) {
+					} else if (p.Pending.Team == TeamColor.White) {
 						teamWhite.push(p);
 					}
 				});
@@ -45,9 +50,9 @@ export default function KickaePage({ id }: {id: number}) {
 
 			const players = game.Players;
 			players.forEach((p) => {
-				if (p.Team === 1) {
+				if (p.Team == TeamColor.Black) {
 					teamBlack.push(p);
-				} else if (p.Team === 2) {
+				} else if (p.Team == TeamColor.White) {
 					teamWhite.push(p);
 				}
 			});

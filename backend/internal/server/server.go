@@ -5,6 +5,7 @@ import (
 	"github.com/Qwiri/InnoDays2022/backend/internal/common"
 	"github.com/apex/log"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"gorm.io/gorm"
 )
 
@@ -21,6 +22,7 @@ func New(db *gorm.DB) (s *Server) {
 		app:     app,
 		pending: make(map[common.KickaeID][]*common.PendingPlayer),
 	}
+	s.app.Use(cors.New())
 	s.app.Get("/", s.routeIndex)
 	s.app.Post("/e/rfid/:kicker_id/:goal_id/:player_id", s.routeRFID)
 	s.app.Post("/e/tor/:kicker_id/:goal_id", s.routeTor)
@@ -39,10 +41,14 @@ func (s *Server) Shutdown() error {
 
 // db functions
 
-func (s *Server) findActiveGameByKicker(id common.KickaeID) (g *common.Game, err error) {
-	err = s.DB.Model(&common.Game{}).
-		Where("kickae_id = ? AND end_time IS NULL", id).
-		First(&g).Error
+func (s *Server) findActiveGameByKicker(id common.KickaeID, preload ...bool) (g *common.Game, err error) {
+	tx := s.DB.Model(&common.Game{})
+	if len(preload) > 0 && preload[0] {
+		tx = tx.Preload("Players").Preload("Players.Player")
+	}
+	err = tx.Where("kickae_id = ? AND end_time IS NULL", id).
+		First(&g).
+		Error
 	return
 }
 
@@ -53,6 +59,7 @@ func (s *Server) getPlayerById(id common.UserID) (p common.Player) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// create new player and save to database
 			p.ID = id
+			p.Elo = 1337 // default elo
 			if err = s.DB.Create(&p).Error; err != nil {
 				log.WithError(err).Warn("cannot save new player")
 			}

@@ -53,7 +53,7 @@ func main() {
 
 	// start web server
 	go func() {
-		if err := s.Listen(":3000"); err != nil {
+		if err := s.Listen(":3001"); err != nil {
 			log.WithError(err).Fatal("Could not start server")
 		}
 	}()

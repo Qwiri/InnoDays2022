@@ -21,6 +21,7 @@ class RfidReader:
         c_id = s_id = None
         while c_id is None:
             for index, s_id in enumerate(self.scanner_ids):  # iterate over each reader
+                self.reader[index].re_init()
 
                 # read id from reader until time expiration
                 c_id = self.reader[index].read_id_no_block()

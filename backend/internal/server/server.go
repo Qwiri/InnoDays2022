@@ -22,11 +22,7 @@ func New(db *gorm.DB) (s *Server) {
 		app:     app,
 		pending: make(map[common.KickaeID][]*common.PendingPlayer),
 	}
-	s.app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowMethods: "*",
-		AllowHeaders: "*",
-	}))
+	s.app.Use(cors.New())
 	s.app.Get("/", s.routeIndex)
 	s.app.Post("/e/rfid/:kicker_id/:goal_id/:player_id", s.routeRFID)
 	s.app.Post("/e/tor/:kicker_id/:goal_id", s.routeTor)

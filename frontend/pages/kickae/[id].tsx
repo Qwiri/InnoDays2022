@@ -1,13 +1,11 @@
 import styles from "/styles/kickae.module.scss";
-import Image from "next/image";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import TeamCard from "../../components/TeamCard";
 import GoalDisplay, { formatTime } from "../../components/GoalDisplay";
 
-import {QRCodeSVG} from "qrcode.react";
-import { useRouter } from "next/router";
+import { QRCodeSVG } from "qrcode.react";
 
-export default function KickaePage({ id }) {
+export default function KickaePage({ id }: {id: number}) {
 
 	const [scoreWhite, setScoreWhite] = useState("?");
 	const [scoreBlack, setScoreBlack] = useState("?");
@@ -20,7 +18,7 @@ export default function KickaePage({ id }) {
 	const [gameTime, setGameTime] = useState("");
 
 	async function fetchData() {
-		const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/p/monitor/${id}`);
+		const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/p/monitor/${id}`).catch(() => {return;});
 		const json = await res.json();
         
 		const teamWhite: Array<Player> = [];

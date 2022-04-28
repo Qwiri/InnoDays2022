@@ -8,10 +8,14 @@ module.exports = withSass({
 module.exports = {
   sassOptions: {
   includePaths: [path.join('./', 'styles')],
-},
+  },
 }
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    domains: ['upload.wikimedia.org',
+              'avatars.dicebear.com'],
+  },
 }
 
 module.exports = nextConfig

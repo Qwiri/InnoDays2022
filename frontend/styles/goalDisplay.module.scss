@@ -1,0 +1,7 @@
+.preserve3d {
+    transform-style: preserve-3d;
+
+    &::after {
+        transform: translateZ(-1px);
+    }
+}

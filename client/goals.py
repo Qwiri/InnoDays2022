@@ -11,8 +11,8 @@ parser.add_argument('--backend-url', type=str,
 parser.add_argument('--kid', type=str, default='1', help='ID of kicker table')
 
 
-BACKEND_URL = "http://localhost"
-KICKER_ID = 0
+backend_url = "http://localhost"
+kicker_id = 1
 
 GOAL_BLACK_LASER_PIN = 16
 GOAL_WHITE_LASER_PIN = 18
@@ -35,7 +35,7 @@ def button_callback(channel):
         goal_id = GOAL_BLACK_ID
     else:
         goal_id = GOAL_WHITE_ID
-    url = f"{BACKEND_URL}/e/tor/{KICKER_ID}/{goal_id}"
+    url = f"{backend_url}/e/tor/{kicker_id}/{goal_id}"
 
     resp = requests.post(url)
     print(url)
@@ -61,8 +61,8 @@ def setup():
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    BACKEND_URL = args.backend_url
-    KICKER_ID = args.kid
+    backend_url = args.backend_url
+    kicker_id = args.kid
     setup()
 
     loop = asyncio.new_event_loop()

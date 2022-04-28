@@ -64,7 +64,9 @@ func (s *Server) routeRFID(c *fiber.Ctx) (err error) {
 			}
 		}
 		s.pending[kickerID] = pe
+		pending = pe
 
+		// if there are too many players on the current team, remove the oldest player
 		// check if there are too many players on the current team
 		// if there are already 2 players (or more) on the current team,
 		// remove the oldest player from the team
@@ -80,11 +82,11 @@ func (s *Server) routeRFID(c *fiber.Ctx) (err error) {
 				}
 				if oldestPlayer == nil {
 					oldestPlayer = p
-					oldest = p.AddedAt.Sub(time.Now())
+					oldest = time.Since(p.AddedAt)
 				} else {
-					if s := p.AddedAt.Sub(time.Now()); s > oldest {
+					if syu := time.Since(p.AddedAt); syu > oldest {
 						oldestPlayer = p
-						oldest = s
+						oldest = syu
 					}
 				}
 			}

@@ -2,7 +2,6 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	"github.com/Qwiri/InnoDays2022/backend/internal/common"
 	"github.com/apex/log"
 	"github.com/gofiber/fiber/v2"
@@ -176,17 +175,12 @@ func (s *Server) elo(game common.Game, winner common.GoalColor) {
 		}
 		mEW = mw[common.WhiteTeamColor]
 		mEB = mw[common.BlackTeamColor]
-
-		fmt.Println("elos:", elos)
 	}
-	fmt.Println("mEW:", mEW, "mEB:", mEB)
 
 	var (
 		eW = 1 / (1 + math.Pow(10, (mEB-mEW)/u))
 		eB = 1 / (1 + math.Pow(10, (mEW-mEB)/u))
 	)
-	fmt.Println("eW:", eW, "eB:", eB)
-
 	for _, p := range game.Players {
 		var (
 			syu float64

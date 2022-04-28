@@ -2,7 +2,6 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	"github.com/Qwiri/InnoDays2022/backend/internal/common"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/utils"
@@ -111,7 +110,6 @@ func (s *Server) routeRFID(c *fiber.Ctx) (err error) {
 
 	// add to pending players
 	s.pending[kickerID] = append(s.pending[kickerID], pending)
-	fmt.Println(s.pending[kickerID])
 
 	return c.Status(fiber.StatusCreated).
 		SendString(string(playerID) + " -> team " + strconv.Itoa(int(goalID)))

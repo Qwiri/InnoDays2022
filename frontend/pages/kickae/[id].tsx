@@ -2,13 +2,12 @@ import styles from "/styles/kickae.module.scss";
 import Image from "next/image";
 import { useEffect, useLayoutEffect, useState } from "react";
 import TeamCard from "../../components/TeamCard";
-import GoalDisplay from "../../components/GoalDisplay";
+import GoalDisplay, { formatTime } from "../../components/GoalDisplay";
 
 import {QRCodeSVG} from "qrcode.react";
 import { useRouter } from "next/router";
 
-export default function KickaePage() {
-	const router = useRouter();
+export default function KickaePage({ id }) {
 
 	const [scoreWhite, setScoreWhite] = useState("?");
 	const [scoreBlack, setScoreBlack] = useState("?");
@@ -20,21 +19,8 @@ export default function KickaePage() {
 	const [qrCode, setQrCode] = useState("");
 	const [gameTime, setGameTime] = useState("");
 
-	function updateGameTime(startTime: number) {
-
-		const goalTime = Date.now();
-		const diff = goalTime - startTime;
-
-		const minutes = Math.floor(diff / 60000);
-		const minutesString = minutes.toString().length < 2 ? "0"+minutes.toString() : minutes.toString();
-		const seconds = Math.floor((diff / 1000) % 60);
-		const secondsString = seconds.toString().length < 2 ? "0"+seconds.toString() : seconds.toString();
-
-		setGameTime(`${minutesString}m ${secondsString}s`);
-	}
-
 	async function fetchData() {
-		const res = await fetch("https://tnl2api.trd.moe/p/monitor/1");
+		const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/p/monitor/${id}`);
 		const json = await res.json();
         
 		const teamWhite: Array<Player> = [];
@@ -57,7 +43,7 @@ export default function KickaePage() {
 
 		} else {
 			game = json.Game;
-			updateGameTime(Date.parse(game.StartTime));
+			setGameTime(formatTime(Date.parse(game.StartTime), new Date(Date.now()).toISOString()));
 
 			const players = game.Players;
 			players.forEach((p) => {
@@ -72,9 +58,9 @@ export default function KickaePage() {
 		setTeamWhite(teamWhite);
 		setTeamBlack(teamBlack);
 		setGame(game);
-		setGoals(game?.Goals || []);
-		setScoreBlack(game?.ScoreBlack?.toString() || "?");
-		setScoreWhite(game?.ScoreWhite?.toString() || "?");
+		setGoals(game?.Goals ?? []);
+		setScoreBlack(game?.ScoreBlack?.toString() ?? "?");
+		setScoreWhite(game?.ScoreWhite?.toString() ?? "?");
 
 	}
 
@@ -142,4 +128,12 @@ export default function KickaePage() {
                 
 		</>
 	);
+}
+export async function getServerSideProps(ctx) {
+	const { id } = ctx.query;
+	return {
+		props: {
+			id,
+		},
+	};
 }
